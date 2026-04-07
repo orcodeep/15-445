@@ -79,7 +79,8 @@ class DLLIterator {
 
     // This is the equality operator for the DLLIterator class. It
     // tests that the current pointers are the same.
-    bool operator==(const DLLIterator &itr) const {
+    bool operator==(const DLLIterator &itr) const { // const before the body means: I promise to not change myself while doing this operation 
+                                                    // (i.e const member function, in this case operator)
       return itr.curr_ == this->curr_;
     }
 
