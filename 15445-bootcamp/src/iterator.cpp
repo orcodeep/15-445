@@ -70,7 +70,7 @@ class DLLIterator {
     // of the operator. The prefix operator returns the result of the
     // increment, while the postfix operator returns the iterator before
     // the increment.
-    // This is made to resemble primitive c++ iterators. int x = 5, y; y = x++; y gets 5 bt x becomes 6
+    // This is made to resemble primitive c++ iterators. int x = 5, y; y = x++; y gets 5 then x becomes 6
     DLLIterator operator++(int) {
       DLLIterator temp = *this;
       ++*this;
