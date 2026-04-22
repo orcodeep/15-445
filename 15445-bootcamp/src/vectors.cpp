@@ -156,9 +156,9 @@ int main() {
   // remove_if has partitioned away to be deleted, up to the end of the vector.
   // This outer erase takes a range argument, as we saw in the previous example.
   point_vector.erase(
-      std::remove_if(point_vector.begin(), point_vector.end(),
+      std::remove_if(point_vector.begin(), point_vector.end(), // arg1
                      [](const Point &point) { return point.GetX() == 37; }),
-      point_vector.end());
+      point_vector.end()); // arg2
 
   // After calling remove here, we should see that three elements remain in our
   // point vector. Only the one with value (37, 445) is deleted.
