@@ -36,6 +36,31 @@
 // Another reason that wrapper classes forbid copying is because they destroy
 // their resource in the destructor, and if two objects are managing the same
 // resource, there is a risk of double deletion of the resource.
+/*
+Consider the class:-
+
+class FileWrapper {
+private:
+    FILE* handle;
+public:
+    FileWrapper(const char* filename) { handle = fopen(filename, "r"); }
+
+    ~FileWrapper() { if (handle) fclose(handle); } // Releases resource automatically
+};
+
+int main() {
+    FileWrapper file1("data.txt");
+    {
+        FileWrapper file2 = file1; // ❌ Shallow copy happens! 
+        // Now BOTH file1 and file2 point to the exact same disk file handle.
+    } // <-- file2 goes out of scope here! Its destructor runs and CLOSES the file handle.
+
+    // 💥 CRASH / UNDEFINED BEHAVIOR: 
+    // file1 tries to read from the file, but file2 already closed it!
+    // When main() ends, file1's destructor will try to close it AGAIN (Double Free).
+}
+*/
+
 class IntPtrManager {
   public:
     // All constructors of a wrapper class are supposed to initialize a resource.

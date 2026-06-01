@@ -54,7 +54,7 @@ private:
 // should be understandable and similar to the code iterating through elements
 // of a vector in the main function.
 void print_int_vector(const std::vector<int> &vec) {
-  for (const int &elem : vec) {
+  for (const int &elem : vec) { // for 'range based for loop'(compiler feature), data structure must provide begin() and end() iterator objects
     std::cout << elem << " ";
   }
   std::cout << "\n";
@@ -156,9 +156,10 @@ int main() {
   // remove_if has partitioned away to be deleted, up to the end of the vector.
   // This outer erase takes a range argument, as we saw in the previous example.
   point_vector.erase(
-      std::remove_if(point_vector.begin(), point_vector.end(), // arg1
+      std::remove_if(point_vector.begin(), point_vector.end(),
                      [](const Point &point) { return point.GetX() == 37; }),
-      point_vector.end()); // arg2
+      point_vector.end() // 2nd arg of std::vector::erase
+      );
 
   // After calling remove here, we should see that three elements remain in our
   // point vector. Only the one with value (37, 445) is deleted.

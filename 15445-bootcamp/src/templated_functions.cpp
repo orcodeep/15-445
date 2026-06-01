@@ -85,6 +85,7 @@ int main() {
   print_msg<int>();
   std::cout << "Calling print_msg<float>(): ";
   print_msg<float>();
+  // print_msg();         // ❌ ERROR: Compiler doesn't know what T is.
 
   // add3 has the specified behavior for both a true and false templated
   // argument, as we can see here.
