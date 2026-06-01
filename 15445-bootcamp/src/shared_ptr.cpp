@@ -10,6 +10,9 @@
 // an object through a pointer. This means that multiple shared pointers can
 // own the same object, and shared pointers can be copied.
 
+// The core benefit of std::shared_ptr isn't just that it deletes things automatically—it's that it deletes things 
+// automatically only when the absolute last person is done using it. This is called Shared Ownership via Reference Counting.
+
 // Includes std::cout (printing) for demo purposes.
 #include <iostream>
 // Includes std::shared_ptr functionality.

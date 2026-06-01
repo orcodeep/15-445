@@ -41,18 +41,67 @@ private:
   int y_;
 };
 
-// Function that takes in a unique pointer reference and changes its x value to
-// 445.
-void SetXTo445(std::unique_ptr<Point> &ptr) { ptr->SetX(445); }
+// Function that takes in a unique pointer reference and changes its x value to 445.
+void SetXTo445(std::unique_ptr<Point> &ptr) { ptr->SetX(445); } //**remember here no constructor is being called
+// you can have a pass by value unique_ptr argument in a function. But, u gotta use std::move() while passing it to the function.
+// It wont compile otherwise. The moment the compiler sees someFunction(my_Uptr), it says: "Okay, the function wants p by value. 
+// That means I need to duplicate my_ptr into p using the Copy Constructor." Then it checks the std::unique_ptr class definition, 
+// sees unique_ptr(const unique_ptr&) = delete;, and completely halts compilation. 'cause The heavy underlying object sitting 
+// on the heap is never duplicated. You are just copying the address of that underlying object which means there would be
+// multiple references to the same object. which a unique_ptr doesnt permit. (a shared_ptr does)
+
+/* Hence you only have the move constructor that works:-
+
+void rprocess(std::unique_ptr<Point>&& p_local) {
+    // p_local is just a reference. It does NOT own it yet.
+    std::cout << p_local->x; 
+} // Nothing is deleted here!
+
+void process(std::unique_ptr<Point> p_local) {
+    // p_local owns it now
+} // The Point is DELETED here!
+
+Pass by Value (std::unique_ptr<Point> ptr): The function demands a brand-new box on its own stack frame. To build that box, 
+it must use a constructor (either copy or move). If you try to pass an lvalue, it tries to use the deleted copy constructor and 
+fails. **Also check unique_ptr.md for why pass-by-value cannot use the Normal constructor instead if u forgot.
 
 int main() {
-  // This is how to initialize an empty unique pointer of type
-  // std::unique_ptr<Point>.
-  std::unique_ptr<Point> u1;
+    auto my_ptr = std::make_unique<Point>(1, 2);
+    process(std::move(my_ptr)); // rprocess() chose not to steal it, so my_ptr is still valid!
+    process(std::move(my_ptr)); // my_ptr will be emptied before process even starts.
+}
+*/
+
+/*
+C++ lets you create a pointer to a reference, which is written syntax-wise as T*&
+It is easiest to think of it this way: a reference to a pointer is just an alias (another name) for an existing pointer variable.
+
+Why would you ever need this? (speaking in terms of a raw ptr):-
+
+The most common reason to use a reference to a pointer is when you want a function to modify a pointer that was passed into it (like 
+changing its memory address or allocating new memory for it).
+The Problem: Passing a Pointer by Value
+
+If you pass a regular pointer into a function, the function gets a copy of that pointer. If you change where the pointer points 
+inside the function, the original pointer outside the function doesn't change!
+
+To achieve the exact same result in C—where a function modifies a pointer from the outside world—you had to pass a pointer to a 
+pointer
+*/
+
+int main() {
+  // This is how to initialize an empty unique pointer of type std::unique_ptr<Point>.
+  std::unique_ptr<Point> u1; /* Under the hood: It is initialized to nullptr. It doesn't point to any object on the heap yet, and no 
+                                memory has been allocated for a Point. It’s just an empty RAII shell waiting for an assignment. */
+
   // This is how to initialize a unique pointer with the default constructor.
   std::unique_ptr<Point> u2 = std::make_unique<Point>();
   // This is how to initialize a unique pointer with a custom constructor.
   std::unique_ptr<Point> u3 = std::make_unique<Point>(2, 3);
+  /* std::make_unique (The helper function template): It goes out to the heap, calls new, allocates the raw memory, 
+   * and constructs your object inside that memory. 
+   * std::unique_ptr immediately takes ownership of that raw pointer from std::make_unique. 
+   * It wraps it safely inside its RAII shell and guarantees that delete will be called when it goes out of scope.*/
 
   // Here, for std::unique_ptr instance u, we use the statement (u ? "not empty"
   // : "empty") to determine if the pointer u contains managed data. The main
@@ -83,10 +132,17 @@ int main() {
 
   // However, it's possible to transfer ownership of unique pointers via
   // std::move.
-  std::unique_ptr<Point> u4 = std::move(u3);
+  std::unique_ptr<Point> u4 = std::move(u3); // here we are actually calling the move constructor of unique_ptr class template 
+                                             // not the move assignment operator
 
   // Note that because u3 is an lvalue, it no longer contains any managed
-  // object. It is an empty unique pointer. Let's retest for emptyness.
+  // object. It is an empty unique pointer. 
+
+  /* If a unique pointer u4 already existed before and was not created on spot and was already pointing to a valid object 
+     on the heap, doing a move-assignment like u4 = std::move(u3); triggers a double action: it safely destroys its own 
+     old object first, and then steals the new one. */
+
+  // Let's retest for emptyness.
   std::cout << "Pointer u3 is " << (u3 ? "not empty" : "empty") << std::endl;
   std::cout << "Pointer u4 is " << (u4 ? "not empty" : "empty") << std::endl;
 
