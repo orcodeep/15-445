@@ -59,7 +59,8 @@ void add_count_and_notify() {
 // or copy-assignable.
 void waiter_thread() {
   std::unique_lock lk(m);
-  cv.wait(lk, []{return count == 2;});
+  cv.wait(lk, []{return count == 2;}); // If you try to pass a std::scoped_lock into 
+                                       // std::condition_variable::wait(), your code will fail to compile.
 
   std::cout << "Printing count: " << count << std::endl;
 }
